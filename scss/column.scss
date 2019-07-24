@@ -1,0 +1,20 @@
+#column {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+
+  > article {
+    @media screen and (min-width: 60em) {
+      grid-column: 3 / span 8;
+    }
+
+    p { word-break: break-all; }
+    figure { margin-top: 0; }
+    figure + p { margin-top: 0; }
+    figure.left { display: inline; float: left; }
+    figure.clear { clear: both; text-align: center; }
+
+    .buyout {
+      justify-self: center;
+    }
+  }
+}

@@ -1,0 +1,71 @@
+#blog {
+  grid-column: 3 / span 8;
+  padding: 2em 0;
+
+  > article {
+    width: 100%;
+
+    h2 {
+      margin-bottom: 2em;
+      font-size: 2em;
+      text-align: center;
+
+      a {
+        text-decoration: none;
+        color: black;
+      }
+    }
+
+    figure {
+      text-align: center;
+
+      img[alt="画像"] + figcaption { display: none; }
+
+      figcaption {
+        font-size: 1.2em;
+      }
+    }
+
+    > img {
+      max-width: 100%;
+      margin: 4em auto;
+    }
+  }
+
+  section.list {
+    display: grid;
+    width: 100%;
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-gap: 1em;
+
+      li {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        padding: 2em;
+        box-shadow: 0px 1px 2px black;
+        border-radius: 0.5em;
+
+        .title { font-size: 1.2em; }
+        time { font-size: 1.2em; }
+
+        a {
+          width: 100%;
+          color: rgb(0, 204, 153);
+          text-decoration: none;
+        }
+
+        img {
+          max-width: 200px;
+          max-height: 200px;
+        }
+      }
+    }
+  }
+}

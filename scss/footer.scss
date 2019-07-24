@@ -1,0 +1,82 @@
+body > footer {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  justify-items: center;
+  align-items: center;
+  grid-gap: 2em;
+  background-color: #f5f5f5;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 1em;
+
+  nav {
+    grid-column: 3 / span 8;
+    font-size: 0.8em;
+
+    a:not(:first-child) {
+      border-left: 1px solid black;
+    }
+  }
+
+  a {
+    color: rgb(102, 102, 102);
+    text-decoration: none;
+
+    &:hover {
+      color: #0c9;
+    }
+  }
+
+  .company {
+      grid-column: 2 / span 10;
+      grid-row: 2;
+      text-align: center;
+      line-height: 1.5em;
+      color: rgb(102, 102, 102);
+
+    .links {
+      font-size: 0.875em;
+    }
+
+    .links > a:not(:first-child) {
+      border-left: 1px solid black;
+    }
+
+    .links > a {
+      padding: 0 1em;
+    }
+
+    .legal {
+      font-size: 0.875em;
+    }
+
+    .address {
+      font-size: 0.875em;
+    }
+
+    .address span {
+      padding: 0 1em;
+      display: inline-block;
+    }
+
+    .owner {
+      font-size: 0.5em;
+    }
+
+    .copy {
+      font-size: 0.7em;
+    }
+  }
+
+  .positive {
+    grid-column: 2 / span 10;
+    grid-row: 3;
+    font-size: 0.7em;
+    justify-self: center;
+  }
+
+  @media screen and (min-width: 60em) {
+    .positive {
+      justify-self: end;
+    }
+  }
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -ex
+
+echo site.hs | entr -n -r -s 'ghc --make site.hs && ( echo site | entr -n -r -s "./site clean && ./site watch" )'
+
+# docker run -it \
+#   -p 35729:35729 \
+#   -v "$(pwd)/_site:/site" \
+#   --restart always \
+#   --name livereloadx \
+#   node:alpine /bin/ash -c \
+#   "npm install -g --log-level=error livereloadx; \
+#   livereloadx -s /site"

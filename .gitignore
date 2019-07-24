@@ -1,0 +1,9 @@
+/css/
+/_site/
+/_cache/
+/.sass-cache/
+/*.o
+/*.hi
+site
+/dist-newstyle/
+/cabal.project.local
