@@ -5,4 +5,4 @@ before_script:
 
 build:
   script:
-    - ./site build
+    - nix-shell --run './site build'
