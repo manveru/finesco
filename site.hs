@@ -29,7 +29,7 @@ main = hakyll $ do
   match "index.html" $ do
     route idRoute
     compile $ do
-      posts <- recentFirst =<< firstTwo =<< loadAll "posts/*.md"
+      posts <- firstTwo =<< recentFirst =<< loadAll "posts/*.md"
       let indexCtx = constField "title" "Home"
             `mappend` listField "posts" postCtx (return posts)
             `mappend` standardContext
@@ -58,7 +58,6 @@ main = hakyll $ do
   createHtmlPage "contact" "お問い合わせ"
   createHtmlPage "soudan"  "ご相談の流れ"
   createHtmlPage "english" "ENGLISH"
-  createHtmlPage "rules" "サイトのご利用にあたって"
 
   match "templates/*" $ compile templateBodyCompiler
 

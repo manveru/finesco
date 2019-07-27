@@ -1,22 +1,5 @@
-@import 'variables';
+@import 'markdown';
 
 #privacy {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-
-  > article {
-    padding: 0 1em;
-    @media screen and (min-width: $cutoff) {
-      grid-column: 3 / span 8;
-      padding: 0;
-    }
-
-    p { word-break: break-all; }
-    p:before {
-      content: "";
-      width: 10em;
-      display: block;
-      overflow: hidden;
-    }
-  }
+  @include markdown-page;
 }
