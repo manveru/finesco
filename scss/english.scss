@@ -60,5 +60,32 @@
         padding: 0;
       }
     }
+
+    &.form {
+      .required-info {
+        font-size: 0.8em;
+        text-align: right;
+      }
+
+      .required:before {
+        content: "*";
+        color: #f00;
+      }
+
+      form > div {
+        display: grid;
+        padding: 1em 0;
+        label:after {
+          content: ":";
+        }
+        input[type="submit"] {
+          background-color: $green;
+          color: white;
+          line-height: 36px;
+          padding: 0.5em 2em;
+          font-size: 0.8em;
+        }
+      }
+    }
   }
 }
