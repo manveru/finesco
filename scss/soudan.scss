@@ -1,4 +1,5 @@
 @import 'parallax';
+@import 'variables';
 @import 'button';
 
 .bg-soudan {
@@ -12,5 +13,15 @@
   font-size: 1.4em;
   align-self: end;
   margin: 0;
-  color: #000;
+  color: black;
+}
+
+#soudan > section.with-icon:nth-child(3) > h3 {
+  font-weight: bold;
+}
+
+#soudan {
+  > section {
+    padding: 2em 1em;
+  }
 }

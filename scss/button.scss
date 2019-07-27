@@ -1,6 +1,8 @@
+@import 'variables';
+
 .button {
   align-self: start;
-  background-color: rgb(0, 204, 153);
+  background-color: $green;
   color: white;
   text-decoration: none;
   line-height: 36px;

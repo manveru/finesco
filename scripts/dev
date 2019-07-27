@@ -2,7 +2,12 @@
 
 set -ex
 
-echo site.hs | entr -n -r -s 'ghc --make site.hs && ( echo site | entr -n -r -s "./site clean && ./site watch" )'
+ghc --make site.hs
+
+(
+  find . -name site.hs | entr -n -r -s 'ghc --make site.hs' &
+  find . -name site | entr -n -r -s './site clean && ./site watch'
+)
 
 # docker run -it \
 #   -p 35729:35729 \

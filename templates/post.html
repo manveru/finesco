@@ -1,12 +1,12 @@
 <article>
   <section class="header">
-    <a href="/blog.html">&lt;</a>
-    $date$
-    $if(author)$ by $author$ $endif$
     <h2><a href="$url$">$title$</a></h2>
+    <date datetime="$date$">$date$</date>
+    $if(author)$<div class="author">$author$</div>$endif$
+    <hr/>
   </section>
 
-  <section>
+  <section class="body">
     $body$
   </section>
 </article>

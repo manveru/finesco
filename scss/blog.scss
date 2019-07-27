@@ -1,69 +1,159 @@
+@import 'variables';
+
 #blog {
-  grid-column: 3 / span 8;
-  padding: 2em 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-column: 1 / span 12;
 
-  > article {
-    width: 100%;
+  > section.list {
+    padding: 1em 1em;
 
-    h2 {
-      margin-bottom: 2em;
-      font-size: 2em;
-      text-align: center;
-
-      a {
-        text-decoration: none;
-        color: black;
-      }
-    }
-
-    figure {
-      text-align: center;
-
-      img[alt="画像"] + figcaption { display: none; }
-
-      figcaption {
-        font-size: 1.2em;
-      }
-    }
-
-    > img {
-      max-width: 100%;
-      margin: 4em auto;
-    }
-  }
-
-  section.list {
-    display: grid;
-    width: 100%;
-
-    ul {
+    > ul {
       list-style: none;
       margin: 0;
       padding: 0;
 
-      display: grid;
-      grid-template-columns: 1fr;
-      grid-gap: 1em;
+      > li {
+        background: $grey;
+        margin: 0.5em 0;
+        padding: 0.5em;
 
-      li {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        padding: 2em;
-        box-shadow: 0px 1px 2px black;
-        border-radius: 0.5em;
+        > .title {
+          a { color: $green; text-decoration: none; }
+        }
 
-        .title { font-size: 1.2em; }
-        time { font-size: 1.2em; }
+        > .teaser {
+          img {
+            width: 100%;
+          }
+        }
 
+        > time {
+          font-size: 0.8em;
+          display: none;
+        }
+      }
+    }
+  }
+
+  > article {
+    > .header {
+      padding: 0 1em;
+
+      a {
+        text-decoration: none;
+        color: $green;
+      }
+    }
+
+    > .body {
+      padding: 0 1em;
+
+      figure {
+        text-align: center;
+        margin: 0;
+
+        img {
+          max-width: 100%;
+        }
+
+        img[alt="画像"] + figcaption { display: none; }
+
+        figcaption {
+          font-size: 0.8em;
+        }
+      }
+
+      img {
+        max-width: 100%;
+      }
+    }
+  }
+
+  @media screen and (min-width: $cutoff) {
+    grid-column: 1 / span 12;
+
+    > article {
+      grid-column: 2 / span 4;
+
+      .header {
+        h2 {
+          margin-bottom: 2em;
+          font-size: 2em;
+          text-align: center;
+
+          a {
+            text-decoration: none;
+            color: black;
+          }
+        }
+
+        date {
+          text-align: right;
+          display: block;
+        }
+      }
+
+      .body {
         a {
-          width: 100%;
           color: rgb(0, 204, 153);
-          text-decoration: none;
+          &:visited {
+            color: rgb(0, 104, 53);
+          }
+        }
+
+        figure {
+          text-align: center;
+
+          img[alt="画像"] + figcaption { display: none; }
+
+          figcaption {
+            font-size: 1.2em;
+          }
         }
 
         img {
-          max-width: 200px;
-          max-height: 200px;
+          max-width: 100%;
+          margin: 4em auto;
+        }
+      }
+    }
+
+    section.list {
+      grid-column: 2 / span 4;
+      padding: 2em 0;
+      display: grid;
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-gap: 1em;
+
+        li {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          padding: 1em;
+          box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+          border-radius: 0.2em;
+
+          > .title  { grid-column: 1 / span 1; font-size: 1.2em; }
+          > time    { grid-column: 2 / span 1; font-size: 0.8em; display: initial; }
+          > .teaser { grid-column: 1 / span 2; }
+
+          a {
+            width: 100%;
+            color: rgb(0, 204, 153);
+            text-decoration: none;
+          }
+
+          img {
+            max-width: 200px;
+            max-height: 200px;
+          }
         }
       }
     }

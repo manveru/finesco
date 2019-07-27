@@ -9,30 +9,31 @@
     <meta property="og:title" content="フィネスコ株式会社　代表　山田仁浩　ブログ">
     <meta property="og:site_name" content="フィネスコ株式会社 | 経営アドバイザリーサービス">
     <meta property="og:description" content="3月、第二代インターン、石川章由くんが宇都宮大学国際学部と当社を卒業して行きました。4月からはアグレッシブな投資銀行部が有名な、...">
-    <link rel="stylesheet" href="/css/main.css" />
-    <link rel="stylesheet" href="/css/$id$.css" />
+    <link rel="stylesheet" href="/scss/normalize.css" />
+    <link rel="stylesheet" href="/scss/body.css" />
+    <link rel="stylesheet" href="/scss/navigation.css" />
+    <link rel="stylesheet" href="/scss/footer.css" />
+    <link rel="stylesheet" href="/scss/post.css" />
+    <link rel="stylesheet" href="/scss/$id$.css" />
   </head>
 
   <body>
     <header>
-      <div class="logo">
-        <a href="/"><img src="/images/finescologo.png"/></a>
-      </div>
-      $partial("templates/nav.html")$
+      <a href="/" class="logo"><img src="/images/finescologo.png" alt="Finesco logo" /></a>
+      $partial("templates/header-navigation.html")$
     </header>
 
-    <main role="main" id="$if(id)$$id$$else$""$endif$">
+    <main role="main" id="$id$">
       $body$
     </main>
 
     <footer>
-      $partial("templates/nav.html")$
+      $partial("templates/footer-navigation.html")$
       $partial("templates/footer.html")$
     </footer>
 
     <script src="/js/scroll.js"></script>
     <script src="/js/live.js"></script>
     <link href="https://fonts.googleapis.com/css?family=M+PLUS+1p" rel="stylesheet">
-     <!-- <script type="text/javascript" src="//typesquare.com/3/tsst/script/en/typesquare.js?5d31e28fbcc84de8a22f0c0cac1e02ec" charset="utf-8"></script> -->
   </body>
 </html>

@@ -1,13 +1,25 @@
+@import 'variables';
+
 #service {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+
+  grid-template-columns: repeat(1, 1fr);
+  @media screen and (min-width: $cutoff) {
+    grid-template-columns: repeat(12, 1fr);
+  }
 
   article {
     display: grid;
+    padding: 0 1em;
     grid-template-columns: repeat(6, 1fr);
 
     > ol {
-      grid-column: 2 / span 4;
+      grid-column: 1 / span 6;
+
+      @media screen and (min-width: $cutoff) {
+        grid-column: 2 / span 4;
+      }
+
       background: #f4f7f8;
       list-style-position: inside;
       padding-left: 0;
@@ -17,7 +29,6 @@
         background-color: #f4f7f8;
         padding: 0;
         font-size: 1.2em;
-        font-weight: bold;
       }
 
       > li {

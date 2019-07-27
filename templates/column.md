@@ -6,7 +6,9 @@ id: column
 昨年（2017年）、EBO（従業員による事業買収）により設立された、「株式会社スポーツギア」（本社：栃木県足利市）さんの第1回定時株主総会が開催されました。
 
 <figure class="left">
-  <img src="/images/column_first.png" alt="【株主総会後、次期新商品の説明をうれしそうに語る塙社長】"/>
+  <a href="/images/column_first.png">
+    <img src="/images/column_first.png" alt="【株主総会後、次期新商品の説明をうれしそうに語る塙社長】"/>
+  </a>
   <figcaption>【株主総会後、次期新商品の説明をうれしそうに語る塙社長】</figcaption>
 </figure>
 
@@ -27,7 +29,9 @@ id: column
 その覚悟、その後の経営の持続可能性、経営とは何か、から始めないといけません。
 
 <figure class="clear">
-  <img src="/images/column_ebo.png" alt="Employee Buyout"/>
+  <a href="/images/column_ebo.png">
+    <img src="/images/column_ebo.png" alt="Employee Buyout"/>
+  </a>
 </figure>
 
 でも、塙社長は持ち前の明るさとバイタリティーで果敢に問題にトライし続けました。実体験を積むことによりスーパースピードで経営者とはどうあるべきかを学習しています。また、中小企業ではなかなか馴染みのない「知財（特許）戦略」にもチャレンジ。競合他社への特許流出を立派に防衛しました。経営数値も好調。第1期は経営計画対比、利益は約5倍で着地。初年度黒字と初年度からの配当を実施しました。なかなかできないことです。

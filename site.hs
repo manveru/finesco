@@ -1,9 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 import           Data.Monoid                    ( mappend )
 import           Hakyll
-import           Control.Applicative            ( Alternative(..) )
+import           Control.Applicative            ( )
 import           Text.Regex.PCRE                ( (=~) )
-import           Debug.Trace                    ( trace )
 
 main :: IO ()
 main = hakyll $ do
@@ -23,51 +22,22 @@ main = hakyll $ do
     route idRoute
     compile copyFileCompiler
 
-  match "css/*" $ do
-    route idRoute
-    compile compressCssCompiler
-
   match "scss/*.scss" $ do
     route $ setExtension "css"
     compile $ sassCompiler
 
-  match "posts/*" $ do
-    route $ setExtension "html"
-    compile
-      $   pandocCompiler
-      >>= saveSnapshot "content"
-      >>= loadAndApplyTemplate "templates/post.html"    postCtx
-      >>= loadAndApplyTemplate "templates/default.html" postCtx
-      >>= relativizeUrls
-
-  create ["blog.html"] $ do
-    route idRoute
-    compile $ do
-      posts <- recentFirst =<< loadAll "posts/*"
-      let archiveCtx =
-            listField "posts" postCtx (return posts)
-              `mappend` constField "title" "Archives"
-              `mappend` constField "id"    "blog"
-              `mappend` standardContext
-
-      makeItem ""
-        >>= loadAndApplyTemplate "templates/blog.html"    archiveCtx
-        >>= loadAndApplyTemplate "templates/default.html" archiveCtx
-        >>= relativizeUrls
-
   match "index.html" $ do
     route idRoute
     compile $ do
-      let indexCtx = constField "title" "Home" `mappend` standardContext
+      posts <- recentFirst =<< firstTwo =<< loadAll "posts/*.md"
+      let indexCtx = constField "title" "Home"
+            `mappend` listField "posts" postCtx (return posts)
+            `mappend` standardContext
 
       getResourceBody
         >>= applyAsTemplate indexCtx
         >>= loadAndApplyTemplate "templates/default.html" indexCtx
         >>= relativizeUrls
-
-  createHtmlPage "about"   "会社概要"
-  createHtmlPage "contact" "お問い合わせ"
-  createHtmlPage "soudan"  "ご相談の流れ"
 
   match "templates/*.md" $ do
     route $ gsubRoute "templates/" (const "") `composeRoutes` setExtension
@@ -75,33 +45,44 @@ main = hakyll $ do
     compile
       $   pandocCompiler
       >>= loadAndApplyTemplate "templates/markdown.html" standardContext
-      >>= loadAndApplyTemplate "templates/default.html" standardContext
+      >>= loadAndApplyTemplate "templates/default.html"  standardContext
       >>= relativizeUrls
+
+  createBlogPosts "posts/*.md" "templates/post.html"
+  createBlogList "Blog" "blog.html" "posts/*.md" "templates/blog.html"
+
+  createBlogPosts "info/*.md" "templates/post.html"
+  createBlogList "Information" "info.html" "info/*.md" "templates/info.html"
+
+  createHtmlPage "about"   "会社概要"
+  createHtmlPage "contact" "お問い合わせ"
+  createHtmlPage "soudan"  "ご相談の流れ"
+  createHtmlPage "english" "ENGLISH"
+  createHtmlPage "rules" "サイトのご利用にあたって"
 
   match "templates/*" $ compile templateBodyCompiler
 
+firstTwo :: Monad m => [a] -> m [a]
+firstTwo items = return $ take 2 items
 
 postCtx :: Context String
 postCtx =
   dateField "date" "%Y-%m-%d"
     `mappend` teaserField "teaser" "content"
     `mappend` constField "id" "blog"
+    `mappend` metadataField
     `mappend` standardContext
 
+standardContext :: Context String
 standardContext = functionField "navLink" navLink <> defaultContext
 
 sassCompiler :: Compiler (Item String)
 sassCompiler =
   getResourceString
     >>= withItemBody
-          (            "sass"
-          `unixFilter` [ "-s"
-                       , "--scss"
-                       , "--style"
-                       , "compressed"
-                       , "--load-path"
-                       , "scss"
-                       ]
+          (unixFilter
+            "sass"
+            ["-s", "--scss", "--style", "expanded", "--load-path", "scss"]
           )
     >>= return
     .   fmap compressCss
@@ -114,17 +95,38 @@ createHtmlPage name title = create [fromFilePath (name ++ ".html")] $ do
           constField "title" title
             `mappend` constField "id" name
             `mappend` standardContext
-        template = (fromFilePath ("templates/" ++ name ++ ".html"))
+        templateFile = (fromFilePath ("templates/" ++ name ++ ".html"))
 
     makeItem ""
-      >>= loadAndApplyTemplate template                 htmlCtx
+      >>= loadAndApplyTemplate templateFile             htmlCtx
       >>= loadAndApplyTemplate "templates/default.html" htmlCtx
       >>= relativizeUrls
 
-optionalField :: String -> (Item a -> Maybe (Compiler String)) -> Context a
-optionalField key f = field key $ \i -> case f i of
-  Nothing    -> empty
-  Just value -> value
+createBlogPosts :: Pattern -> Identifier -> Rules ()
+createBlogPosts glob templateFile = match glob $ do
+  route $ setExtension "html"
+  compile
+    $   pandocCompiler
+    >>= saveSnapshot "content"
+    >>= loadAndApplyTemplate templateFile             postCtx
+    >>= loadAndApplyTemplate "templates/default.html" postCtx
+    >>= relativizeUrls
+
+createBlogList :: String -> Identifier -> Pattern -> Identifier -> Rules ()
+createBlogList title target glob templateFile = create [target] $ do
+  route idRoute
+  compile $ do
+    posts <- recentFirst =<< loadAll glob
+    let blogCtx =
+          constField "id" "blog"
+          `mappend` constField "title" title
+            `mappend` listField "posts" postCtx (return posts)
+            `mappend` standardContext
+
+    makeItem ""
+      >>= loadAndApplyTemplate templateFile             blogCtx
+      >>= loadAndApplyTemplate "templates/default.html" blogCtx
+      >>= relativizeUrls
 
 
 navLink :: [String] -> Item String -> Compiler String
@@ -137,10 +139,14 @@ navLink args item =
 
 navLinkIsActive :: String -> String -> Bool
 navLinkIsActive to itemName
+  | to == "/" && itemName == "index.html"
+  = True
   | Just m <- matchPattern "^([^/.]+)\\.html$"
   = to == "/" ++ m ++ ".html"
-  | Just m <- matchPattern "^posts/([^/.]+)\\.md$"
+  | Just _ <- matchPattern "^posts/([^/.]+)\\.md$"
   = to == "/blog.html"
+  | Just _ <- matchPattern "^info/([^/.]+)\\.md$"
+  = to == "/info.html"
   | Just m <- matchPattern "^([^/.]+)\\.md$"
   = to == "/" ++ m ++ ".md"
   | Just m <- matchPattern "^templates/([^.]+)\\.md$"

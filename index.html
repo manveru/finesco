@@ -13,12 +13,17 @@ id: home
 </div>
 
 <section class="news">
-  <div>NEWS</div>
-  <span>2019.04.01</span> <span>FA案件のクロージングについて</span>
-  <span>2018.12.28</span>
-  <span>
-    当社出資先の株式会社スポーツギアさんが「保証だより」（栃木県信用保証協会発行）に掲載されました
-  </span>
+  <div class="inner">
+    <h3><a href="/news.html">Latest News</a></h3>
+    <ul>
+      $for(posts)$
+        <li>
+          <time datetime="$date$">$date$</time>
+          <div class="title"><a href="$url$">$title$</a></div>
+        </li>
+      $endfor$
+    </ul>
+  </div>
 </section>
 
 <section class="service">
