@@ -4,4 +4,5 @@ before_script:
   - nix-shell --run 'ghc --make site.hs'
 
 build:
-  ./site build
+  script:
+    - ./site build
