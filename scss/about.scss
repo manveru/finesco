@@ -1,19 +1,6 @@
 @import 'variables';
 @import 'contact-common';
-
-/*
-#about {
-  .with-background {
-    hr {
-      color: rgba(0,0,0,0.13);
-      background-color: rgba(0,0,0,0.13);
-      height: 1px;
-      width: 50%;
-      margin: 3em auto;
-    }
-  }
-}
-*/
+@import 'company-info';
 
 #about {
   > section {
@@ -33,17 +20,7 @@
       }
     }
 
-    > dl {
-      > dt {
-        font-size: 1.2em;
-        margin-top: 1em;
-      }
-
-      > dd {
-        &.grid-2 {:nth-child(2n):after {content: "\A"; white-space: pre;}}
-        &.grid-3 {:nth-child(3n):after {content: "\A"; white-space: pre;}}
-      }
-    }
+    @include company-info;
 
     > figure {
       margin: 2em 0;
