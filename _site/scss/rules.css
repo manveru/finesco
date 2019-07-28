@@ -1,0 +1,1 @@
+#rules{display:grid;grid-template-columns:repeat(12,1fr)}#rules>article{padding:0 1em}@media screen and (min-width:50rem){#rules>article{grid-column:3 / span 8;padding:0}}#rules>article p{word-break:break-all}#rules>article p:before{content:"";width:10em;display:block;overflow:hidden}
