@@ -18,12 +18,8 @@ main = hakyll $ do
     route idRoute
     compile copyFileCompiler
 
-  match "admin/index.html" $ do
+  match "admin/*" $ do
     route idRoute
-    compile copyFileCompiler
-
-  match "admin/config.yml" $ do
-    route $ constRoute "config.yml"
     compile copyFileCompiler
 
   match "js/*" $ do
