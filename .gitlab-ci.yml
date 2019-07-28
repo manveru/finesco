@@ -1,6 +1,5 @@
-image: "lnl7/nix:2019-03-01"
+image: "registry.gitlab.com/manveru/finesco"
 before_script:
-  - nix-env -iA nixpkgs.gzip nixpkgs.gnutar
   - nix-shell --run 'ghc --make site.hs'
 
 build:
