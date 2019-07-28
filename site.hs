@@ -3,9 +3,12 @@ import           Data.Monoid                    ( mappend )
 import           Hakyll
 import           Control.Applicative            ( )
 import           Text.Regex.PCRE                ( (=~) )
+import Hakyll.Favicon (faviconsRules, faviconsField)
 
 main :: IO ()
 main = hakyll $ do
+  faviconsRules "images/favicon.svg"
+
   match "images/*" $ do
     route idRoute
     compile copyFileCompiler
@@ -77,7 +80,7 @@ postCtx =
     `mappend` standardContext
 
 standardContext :: Context String
-standardContext = functionField "navLink" navLink <> defaultContext
+standardContext = faviconsField `mappend` functionField "navLink" navLink <> defaultContext
 
 sassCompiler :: Compiler (Item String)
 sassCompiler =
