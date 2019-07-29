@@ -1,0 +1,11 @@
+{
+  "name": "finesco",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@gitlab.com:manveru/finesco.git",
+  "author": "Michael Fellinger <michael.fellinger@xing.com>",
+  "license": "MIT",
+  "dependencies": {
+    "netlify-cli": "^2.11.31"
+  }
+}
