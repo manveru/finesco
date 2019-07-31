@@ -1,9 +1,0 @@
----
-title: 当社出資先「株式会社スポーツギア」が栃木県FMラジオ局「RADIO BERRY FM栃木」で紹介されました
-date: 2017-09-15
----
-
-
-![[出典： RBZfriday RadioBerry76.4FM on Facebook](https://www.facebook.com/1453144274945466/photos/pcb.1911488692444353/1911488342444388/?type=3&theater)](/images/uploads/2017091502.jpg)
-
-当社投資先の株式会社スポーツギアが、栃木県のFMラジオ局「RADIO BERRY FM栃木（レディオベリー ：エフエム栃木）」で紹介されました。プロ野球最速164キロの大谷投手の球の速さを体感したい方、同じサイトに同がありますので、ぜひご覧下さい！​

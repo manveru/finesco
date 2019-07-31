@@ -25,7 +25,7 @@ in pkgs.dockerTools.buildLayeredImage {
 
   config = {
     Env = pkgs.lib.mapAttrsFlatten (k: v: "${k}=${v}") {
-      PATH = "${site}/bin:${pkgs.finescoYarnPackages}/node_modules/.bin";
+      PATH = "${site}/bin:${pkgs.finescoYarnPackages}/node_modules/.bin:${pkgs.bashInteractive}/bin";
       LOCALE_ARCHIVE =
         "${pkgs.buildPackages.glibcLocales}/lib/locale/locale-archive";
       LC_ALL = "en_US.UTF-8";

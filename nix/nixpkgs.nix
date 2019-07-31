@@ -1,4 +1,6 @@
 let
+  inherit (builtins) fetchTarball fetchurl import;
+
   nixpkgsSource = fetchTarball {
     url =
       "https://github.com/nixos/nixpkgs-channels/archive/a835adc10cb813d214a9069361d94a2a3f8eb3a5.tar.gz";
@@ -13,14 +15,33 @@ let
 
   yarn2nix = import yarn2nixSource { };
 
+  infuseSource = fetchurl {
+    url =
+      "https://github.com/jucardi/infuse/releases/download/v1.0.0.0/infuse-Linux-x86_64";
+    sha256 = "17ln936r21g44rskaiddz0rqqy87aji20x1qav23ga49vc4rl1ii";
+  };
+
 in import nixpkgsSource {
   config = { allowUnfree = true; };
   overlays = [
     (self: super: {
-      inherit (yarn2nix) yarn2nix mkYarnModules;
+      infuse = super.stdenv.mkDerivation {
+        pname = "infuse";
+        version = "1.0.0.0";
+        src = infuseSource;
+        buildCommand = ''
+          mkdir -p $out/bin
+          cp $src $out/bin/infuse
+          chmod +x $out/bin/infuse
+        '';
+      };
+
+      rubyEnv = super.bundlerEnv { name = "finesco-gems"; gemdir = ../.; };
 
       haskellEnv = super.haskell.packages.ghc865.ghcWithPackages
         (ps: with ps; [ hakyll hakyll-favicon ]);
+
+      inherit (yarn2nix) yarn2nix mkYarnModules;
 
       finescoYarnPackages = yarn2nix.mkYarnModules {
         name = "finesco";

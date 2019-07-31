@@ -1,1 +1,0 @@
-#privacy{display:grid;grid-template-columns:repeat(12,1fr)}#privacy>article{padding:0 1em}@media screen and (min-width:50rem){#privacy>article{grid-column:3 / span 8;padding:0}}#privacy>article p{word-break:break-all}#privacy>article p:before{content:"";width:10em;display:block;overflow:hidden}

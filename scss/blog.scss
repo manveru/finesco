@@ -1,4 +1,4 @@
-@import 'variables';
+@import "main";
 
 #blog {
   display: grid;
@@ -19,7 +19,10 @@
         padding: 0.5em;
 
         > .title {
-          a { color: $green; text-decoration: none; }
+          a {
+            color: $green;
+            text-decoration: none;
+          }
         }
 
         > .teaser {
@@ -57,7 +60,9 @@
           max-width: 100%;
         }
 
-        img[alt="画像"] + figcaption { display: none; }
+        img[alt="画像"] + figcaption {
+          display: none;
+        }
 
         figcaption {
           font-size: 0.8em;
@@ -97,6 +102,7 @@
       .body {
         a {
           color: rgb(0, 204, 153);
+
           &:visited {
             color: rgb(0, 104, 53);
           }
@@ -105,7 +111,9 @@
         figure {
           text-align: center;
 
-          img[alt="画像"] + figcaption { display: none; }
+          img[alt="画像"] + figcaption {
+            display: none;
+          }
 
           figcaption {
             font-size: 1.2em;
@@ -128,7 +136,6 @@
         list-style: none;
         margin: 0;
         padding: 0;
-
         display: grid;
         grid-template-columns: 1fr;
         grid-gap: 1em;
@@ -140,9 +147,20 @@
           box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
           border-radius: 0.2em;
 
-          > .title  { grid-column: 1 / span 1; font-size: 1.2em; }
-          > time    { grid-column: 2 / span 1; font-size: 0.8em; display: initial; }
-          > .teaser { grid-column: 1 / span 2; }
+          > .title {
+            grid-column: 1 / span 1;
+            font-size: 1.2em;
+          }
+
+          > time {
+            grid-column: 2 / span 1;
+            font-size: 0.8em;
+            display: initial;
+          }
+
+          > .teaser {
+            grid-column: 1 / span 2;
+          }
 
           a {
             width: 100%;

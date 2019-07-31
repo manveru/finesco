@@ -1,1 +1,0 @@
-#disclaimer{display:grid;grid-template-columns:repeat(12,1fr)}#disclaimer>article{padding:0 1em}@media screen and (min-width:50rem){#disclaimer>article{grid-column:3 / span 8;padding:0}}#disclaimer>article p{word-break:break-all}#disclaimer>article p:before{content:"";width:10em;display:block;overflow:hidden}

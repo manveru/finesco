@@ -1,6 +1,6 @@
-@import 'variables';
-@import 'contact-common';
-@import 'company-info';
+@import "main";
+@import "contact-common";
+@import "company-info";
 
 #about {
   > section {
@@ -15,6 +15,7 @@
 
     .inner {
       grid-column: 1 / span 6;
+
       @media screen and (min-width: $cutoff) {
         grid-column: 2 / span 4;
       }

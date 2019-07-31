@@ -1,12 +1,11 @@
 with import ./nix/nixpkgs.nix;
 pkgs.mkShell {
-  buildInputs = [ cacert haskellEnv sass cabal2nix image_optim yarn yarn2nix ];
+  buildInputs = [ cacert sass image_optim yarn yarn2nix multimarkdown infuse rubyEnv.wrappedRuby watchexec ];
 
   LOCALE_ARCHIVE = "${buildPackages.glibcLocales}/lib/locale/locale-archive";
   LC_ALL = "en_US.UTF-8";
 
   shellHook = ''
-    eval "$(grep ^export ${haskellEnv}/bin/ghc)"
     unset preHook # fix for lorri
 
     if [[ -d node_modules || -L node_modules ]]; then

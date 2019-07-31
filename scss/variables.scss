@@ -17,6 +17,7 @@ $cutoff: 50rem;
 
     .inner {
       grid-column: 1 / span 6;
+
       @media screen and (min-width: $cutoff) {
         grid-column: 2 / span 4;
       }

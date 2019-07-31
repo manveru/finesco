@@ -1,5 +1,5 @@
-@import 'variables';
-@import 'company-info';
+@import "main";
+@import "company-info";
 
 #english {
   @include section;
@@ -61,6 +61,7 @@
 
         @media screen and (min-width: $cutoff) {
           grid-template-columns: 10em 1fr;
+
           input[type="submit"] {
             grid-column: 1 / span 2;
           }

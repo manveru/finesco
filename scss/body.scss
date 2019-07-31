@@ -1,17 +1,16 @@
-@import 'variables';
+@import "variables";
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 300;
 }
 
 body {
-  font-family: 'Montserrat', 'Mplus 1p', 'M PLUS 1p', 'Hiragino Sans', 'Hiragino Kaku Gothic Pro', '游ゴシック' , '游ゴシック体' , YuGothic , 'Yu Gothic', 'ＭＳ ゴシック' , 'MS Gothic', sans-serif;
-
+  font-family: 'Montserrat', 'Mplus 1p', 'Hiragino Sans', 'Hiragino Kaku Gothic Pro', '游ゴシック' , '游ゴシック体' , YuGothic , 'Yu Gothic', 'ＭＳ ゴシック' , 'MS Gothic', sans-serif;
   display: grid;
 
   @media screen and (min-width: $cutoff) {
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: 6rem repeat(2, auto);
+    grid-template-rows: 4rem repeat(2, auto);
   }
 
   line-height: 1.625;
@@ -30,9 +29,11 @@ body {
 
     > h2 {
       line-height: 3.5em;
+
       @media screen and (min-width: $cutoff) {
         line-height: 7em;
       }
+
       vertical-align: middle;
       text-align: center;
       background-color: $grey;

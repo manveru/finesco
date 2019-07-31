@@ -1,4 +1,4 @@
-@import 'variables';
+@import "variables";
 
 @mixin company-info {
   > dl {
@@ -9,7 +9,10 @@
 
     > dd {
       &.grid-2 {
-        :nth-child(odd):after { content: ":"; }
+        :nth-child(odd):after {
+          content: ":";
+        }
+
         :nth-child(2n):after {
           content: "\A";
           white-space: pre;
@@ -19,7 +22,10 @@
           display: grid;
           grid-template-columns: 0.5fr 1.5fr;
           grid-column-gap: 1em;
-          :nth-child(odd) { text-align: right; }
+
+          :nth-child(odd) {
+            text-align: right;
+          }
         }
       }
     }

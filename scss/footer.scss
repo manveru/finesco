@@ -1,4 +1,4 @@
-@import 'variables';
+@import "variables";
 
 body > footer {
   display: grid;
@@ -35,6 +35,7 @@ body > footer {
           background: $grey;
           width: 100%;
           height: 100%;
+
           a {
             display: block;
           }
@@ -53,11 +54,11 @@ body > footer {
   }
 
   .company {
-      grid-column: 2 / span 10;
-      grid-row: 2;
-      text-align: center;
-      line-height: 1.5em;
-      color: rgb(102, 102, 102);
+    grid-column: 2 / span 10;
+    grid-row: 2;
+    text-align: center;
+    line-height: 1.5em;
+    color: rgb(102, 102, 102);
 
     .links {
       font-size: 0.875em;
