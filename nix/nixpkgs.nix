@@ -36,10 +36,9 @@ in import nixpkgsSource {
         '';
       };
 
-      rubyEnv = super.bundlerEnv { name = "finesco-gems"; gemdir = ../.; };
-
-      haskellEnv = super.haskell.packages.ghc865.ghcWithPackages
-        (ps: with ps; [ hakyll hakyll-favicon ]);
+      # 2.5 is a bit faster than 2.6
+      rubyEnv = super.bundlerEnv { ruby = super.ruby_2_5; name = "finesco-gems"; gemdir = ./.; };
+      # rubyEnvPlain = ( import ~/github/nixos/nixpkgs {} ).ruby_2_5.withPackages (p: [ p.redcarpet ]);
 
       inherit (yarn2nix) yarn2nix mkYarnModules;
 

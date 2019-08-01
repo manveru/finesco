@@ -6,15 +6,15 @@ require 'pathname'
 require 'set'
 
 ORIGIN = Pathname(File.expand_path(ARGV[0]))
-SCSS_IMPORT = /^@import ['"']([^\'\"]+)['"']/.freeze
+CSS_IMPORT = /^@import ['"']([^\'\"]+)['"']/.freeze
 
 def deps(path, seen = Set.new)
   return seen if seen.include?(path)
 
   seen << path
 
-  File.read(path).scan(SCSS_IMPORT).flatten.uniq.each do |name|
-    dep = File.expand_path("#{name}.scss", File.dirname(path))
+  File.read(path).scan(CSS_IMPORT).flatten.uniq.each do |name|
+    dep = File.expand_path("#{name}.css", File.dirname(path))
     deps(dep, seen)
   end
 
@@ -27,7 +27,7 @@ end
 
 roots = {}
 
-Dir.glob(File.expand_path('**/*.scss', ARGV[0])) do |root|
+Dir.glob(File.expand_path('**/*.css', ARGV[0])) do |root|
   roots[relative(root)] = deps(root).map do |dep|
     relative(dep)
   end

@@ -6,6 +6,16 @@
   "author": "Michael Fellinger <michael.fellinger@xing.com>",
   "license": "MIT",
   "dependencies": {
-    "netlify-cli": "^2.11.31"
+    "autoprefixer": "^9.6.1",
+    "colorguard": "^1.2.1",
+    "css-mqpacker": "^7.0.0",
+    "cssnano": "^4.1.10",
+    "doiuse": "^4.2.0",
+    "netlify-cli": "^2.11.31",
+    "postcss-cli": "^6.1.3",
+    "postcss-cssnext": "^3.1.0",
+    "postcss-import": "^12.0.1",
+    "postcss-scss": "^2.0.0",
+    "stylefmt": "^6.0.3"
   }
 }

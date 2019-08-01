@@ -131,7 +131,7 @@ let
           done
 
           mkdir -p $out
-          ${if css != null then "cp -r ${mkSCSS css}/* $out" else ""}
+          ${if css != null then "cp -r ${mkCSS css}/* $out" else ""}
           sed -i 's!@@body@@!{{template "${body}" .}}!' "${layout.template}"
           infuse -f ${metaJSON} ${definitions} "${layout.template}" -o "$out${route}"
         '';
@@ -160,7 +160,7 @@ let
           done
 
           mkdir -p $out/$(dirname ${route})
-          ${if css != null then "cp -r ${mkSCSS css}/* $out" else ""}
+          ${if css != null then "cp -r ${mkCSS css}/* $out" else ""}
           sed -i 's!@@body@@!{{template "${bodyTmpl}" .}}!' "${layout.template}"
           infuse -f ${metaJSON} ${definitions} "${layout.template}" -o "$out${route}"
         '';
@@ -176,8 +176,8 @@ let
 
       css = {
         route = "/css/blog.css";
-        main = "blog.scss";
-        dependencies = scssDepsFor ./scss "blog.scss";
+        main = "blog.css";
+        dependencies = cssDepsFor ./css "blog.css";
       };
 
       meta = {
@@ -187,13 +187,13 @@ let
       } // post;
     }) posts;
 
-  mkSCSS = { route, dependencies, main }:
+  mkCSS = { route, dependencies, main }:
     mkDerivation {
       __structuredAttrs = true;
 
-      name = "mkSCSS";
+      name = "mkCSS";
 
-      PATH = makeBinPath [ pkgs.coreutils pkgs.sass ];
+      PATH = "${pkgs.coreutils}/bin:${pkgs.finescoYarnPackages}/node_modules/.bin";
 
       inherit dependencies main route;
 
@@ -208,7 +208,11 @@ let
           cp "''${dependencies[$i]}" $i
         done
 
-        sass --scss --sourcemap=inline --style expanded --load-path . $main $out$route
+        postcss "$main" \
+          -u postcss-import \
+          -u postcss-cssnext \
+          -u css-mqpacker \
+          -o "$out$route"
       '';
     };
 
@@ -240,7 +244,7 @@ let
           done
 
           mkdir -p $out
-          ${if css != null then "cp -r ${mkSCSS css}/* $out" else ""}
+          ${if css != null then "cp -r ${mkCSS css}/* $out" else ""}
 
           echo "$markdownBody" > markdownBody.tmpl
           sed -i 's!@@body@@!{{template "markdown.tmpl" .}}!' "${layout.template}"
@@ -261,23 +265,23 @@ let
       '';
     };
 
-  scssDeps = src:
+  cssDeps = src:
     let
       generated = mkDerivation {
-        name = "scssDeps";
+        name = "cssDeps";
         PATH = makeBinPath [ pkgs.rubyEnv.wrappedRuby ];
         inherit src;
         LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
         LC_ALL = "en_US.UTF-8";
 
         buildCommand = ''
-          ruby ${./scripts/scss_deps.rb} "$src" > $out
+          ruby ${./scripts/css_deps.rb} "$src" > $out
         '';
       };
     in fromJSON (readFile generated);
 
-  scssDepsFor = src: entryPoint:
-    let allDeps = scssDeps src;
+  cssDepsFor = src: entryPoint:
+    let allDeps = cssDeps src;
     in listToAttrs (map (v: {
       name = v;
       value = "${src + "/${v}"}";
@@ -298,8 +302,8 @@ let
     lib.recursiveUpdate (commonAttrs id {
       css = {
         route = "/css/${id}.css";
-        main = "${id}.scss";
-        dependencies = scssDepsFor ./scss "${id}.scss";
+        main = "${id}.css";
+        dependencies = cssDepsFor ./css "${id}.css";
       };
 
       meta = {
@@ -313,8 +317,8 @@ let
 
       css = {
         route = "/css/blog.css";
-        main = "blog.scss";
-        dependencies = scssDepsFor ./scss "blog.scss";
+        main = "blog.css";
+        dependencies = cssDepsFor ./css "blog.css";
       };
 
       meta = {
@@ -346,8 +350,8 @@ let
 
       css = {
         route = "/css/service.css";
-        main = "service.scss";
-        dependencies = scssDepsFor ./scss "service.scss";
+        main = "service.css";
+        dependencies = cssDepsFor ./css "service.css";
       };
 
       meta = {
@@ -372,8 +376,8 @@ let
 
       css = {
         route = "/css/column.css";
-        main = "column.scss";
-        dependencies = scssDepsFor ./scss "column.scss";
+        main = "column.css";
+        dependencies = cssDepsFor ./css "column.css";
       };
 
       meta = {

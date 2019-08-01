@@ -1,21 +1,22 @@
 { pkgs ? import ./nixpkgs.nix }:
 let
-  ghc = pkgs.haskell.packages.ghc865.ghcWithPackages
-    (ps: with ps; [ hakyll hakyll-favicon ]);
-
-  site = pkgs.stdenv.mkDerivation {
-    name = "finesco-hakyll";
-    src = ../site.hs;
-    nativeBuildInputs = [ ghc ];
-    unpackPhase = "true";
-    buildPhase = ''
-      cp $src site.hs
-      ghc --make site.hs
-    '';
-    installPhase = ''
-      mkdir -p $out/bin
-      mv site $out/bin
-    '';
+  site = pkgs.symlinkJoin {
+    name = "finesco-files";
+    paths = [
+      ../admin
+      ../blog
+      ../images
+      ../info
+      ../js
+      ../nix
+      ../scripts
+      ../scss
+      ../templates
+      ../default.nix
+      ../Gemfile
+      ../Gemfile.lock
+      ../gemset.nix
+    ];
   };
 in pkgs.dockerTools.buildLayeredImage {
   name = "registry.gitlab.com/manveru/finesco";
