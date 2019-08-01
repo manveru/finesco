@@ -3459,6 +3459,15 @@
     }
 
     {
+      name = "gray_matter___gray_matter_4.0.2.tgz";
+      path = fetchurl {
+        name = "gray_matter___gray_matter_4.0.2.tgz";
+        url  = "https://registry.yarnpkg.com/gray-matter/-/gray-matter-4.0.2.tgz";
+        sha1 = "9aa379e3acaf421193fce7d2a28cebd4518ac454";
+      };
+    }
+
+    {
       name = "has_ansi___has_ansi_0.1.0.tgz";
       path = fetchurl {
         name = "has_ansi___has_ansi_0.1.0.tgz";
@@ -4737,6 +4746,15 @@
     }
 
     {
+      name = "linkify_it___linkify_it_2.2.0.tgz";
+      path = fetchurl {
+        name = "linkify_it___linkify_it_2.2.0.tgz";
+        url  = "https://registry.yarnpkg.com/linkify-it/-/linkify-it-2.2.0.tgz";
+        sha1 = "e3b54697e78bf915c70a38acd78fd09e0058b1cf";
+      };
+    }
+
+    {
       name = "load_json_file___load_json_file_1.1.0.tgz";
       path = fetchurl {
         name = "load_json_file___load_json_file_1.1.0.tgz";
@@ -5106,6 +5124,15 @@
     }
 
     {
+      name = "markdown_it___markdown_it_9.0.1.tgz";
+      path = fetchurl {
+        name = "markdown_it___markdown_it_9.0.1.tgz";
+        url  = "https://registry.yarnpkg.com/markdown-it/-/markdown-it-9.0.1.tgz";
+        sha1 = "aafe363c43718720b6575fd10625cde6e4ff2d47";
+      };
+    }
+
+    {
       name = "math_expression_evaluator___math_expression_evaluator_1.2.17.tgz";
       path = fetchurl {
         name = "math_expression_evaluator___math_expression_evaluator_1.2.17.tgz";
@@ -5183,6 +5210,15 @@
         name = "mdn_data___mdn_data_1.1.4.tgz";
         url  = "https://registry.yarnpkg.com/mdn-data/-/mdn-data-1.1.4.tgz";
         sha1 = "50b5d4ffc4575276573c4eedb8780812a8419f01";
+      };
+    }
+
+    {
+      name = "mdurl___mdurl_1.0.1.tgz";
+      path = fetchurl {
+        name = "mdurl___mdurl_1.0.1.tgz";
+        url  = "https://registry.yarnpkg.com/mdurl/-/mdurl-1.0.1.tgz";
+        sha1 = "fe85b2ec75a59037f2adfec100fd6c601761152e";
       };
     }
 
@@ -7752,6 +7788,15 @@
     }
 
     {
+      name = "section_matter___section_matter_1.0.0.tgz";
+      path = fetchurl {
+        name = "section_matter___section_matter_1.0.0.tgz";
+        url  = "https://registry.yarnpkg.com/section-matter/-/section-matter-1.0.0.tgz";
+        sha1 = "e9041953506780ec01d59f292a19c7b850b84167";
+      };
+    }
+
+    {
       name = "seek_bzip___seek_bzip_1.0.5.tgz";
       path = fetchurl {
         name = "seek_bzip___seek_bzip_1.0.5.tgz";
@@ -8234,6 +8279,15 @@
         name = "strip_ansi___strip_ansi_5.2.0.tgz";
         url  = "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-5.2.0.tgz";
         sha1 = "8c9a536feb6afc962bdfa5b104a5091c1ad9c0ae";
+      };
+    }
+
+    {
+      name = "strip_bom_string___strip_bom_string_1.0.0.tgz";
+      path = fetchurl {
+        name = "strip_bom_string___strip_bom_string_1.0.0.tgz";
+        url  = "https://registry.yarnpkg.com/strip-bom-string/-/strip-bom-string-1.0.0.tgz";
+        sha1 = "e5211e9224369fbb81d633a2f00044dc8cedad92";
       };
     }
 
@@ -8729,6 +8783,15 @@
         name = "typescript___typescript_3.5.3.tgz";
         url  = "https://registry.yarnpkg.com/typescript/-/typescript-3.5.3.tgz";
         sha1 = "c830f657f93f1ea846819e929092f5fe5983e977";
+      };
+    }
+
+    {
+      name = "uc.micro___uc.micro_1.0.6.tgz";
+      path = fetchurl {
+        name = "uc.micro___uc.micro_1.0.6.tgz";
+        url  = "https://registry.yarnpkg.com/uc.micro/-/uc.micro-1.0.6.tgz";
+        sha1 = "9c411a802a409a91fc6cf74081baba34b24499ac";
       };
     }
 

@@ -37,13 +37,32 @@ in import nixpkgsSource {
       };
 
       # 2.5 is a bit faster than 2.6
-      rubyEnv = super.bundlerEnv { ruby = super.ruby_2_5; name = "finesco-gems"; gemdir = ./.; };
-      # rubyEnvPlain = ( import ~/github/nixos/nixpkgs {} ).ruby_2_5.withPackages (p: [ p.redcarpet ]);
+      rubyEnv = super.bundlerEnv {
+        ruby = super.ruby_2_5;
+        name = "finesco-gems";
+        gemdir = ./.;
+      };
 
-      inherit (yarn2nix) yarn2nix mkYarnModules;
+      # rubyEnvPlain = (import ~/github/nixos/nixpkgs { }).ruby_2_5.withPackages
+      #   (p: [ p.redcarpet ]);
+
+      srcWithout = rootPath: ignoredPaths:
+        let ignoreStrings = map (path: toString path) ignoredPaths;
+        in builtins.filterSource
+        (path: type: (builtins.all (i: i != path) ignoreStrings)) rootPath;
+
+      inherit (yarn2nix) yarn2nix mkYarnModules mkYarnPackage;
+
+      finescoScripts = yarn2nix.mkYarnPackage {
+        name = "finesco-scripts";
+        src = super.lib.cleanSource ../.;
+        packageJSON = ../package.json;
+        yarnLock = ../yarn.lock;
+        yarnNix = ../yarn.nix;
+      };
 
       finescoYarnPackages = yarn2nix.mkYarnModules {
-        name = "finesco";
+        name = "finesco-packages";
         pname = "finesco";
         version = "1.0";
         packageJSON = ../package.json;
