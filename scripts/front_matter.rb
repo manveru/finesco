@@ -34,6 +34,6 @@ if teaser
   meta['teaser'] = markdown.render(md)
 end
 
-meta['body'] = markdown.render(markdown_source)
+meta['body'] = markdown.render(markdown_source.gsub(/<!--\s*more\s*-->/, ''))
 
 puts JSON.pretty_unparse(meta)
