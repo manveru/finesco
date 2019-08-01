@@ -13,7 +13,7 @@ let
     sha256 = "1f83cr9qgk95g3571ps644rvgfzv2i4i7532q8pg405s4q5ada3h";
   };
 
-  yarn2nix = import yarn2nixSource { };
+  yarn2nix = import yarn2nixSource { pkgs = import nixpkgsSource {}; };
 
   infuseSource = fetchurl {
     url =
