@@ -1,0 +1,11 @@
+@import "variables";
+
+.button {
+  align-self: start;
+  background-color: var(--green);
+  color: white;
+  text-decoration: none;
+  line-height: 36px;
+  padding: 0.5em 2em;
+  font-size: 1em;
+}

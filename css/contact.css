@@ -1,0 +1,52 @@
+@import "main";
+
+#contact {
+  @apply --section;
+
+  & section.form {
+    & .inner {
+      @media (--large) {
+        grid-column: 3 / span 2;
+      }
+    }
+
+    & .required-info {
+      font-size: 0.8em;
+      text-align: right;
+    }
+
+    & .required:before {
+      content: "*";
+      color: #f00;
+    }
+
+    & form > div {
+      display: grid;
+      padding: 1em 0;
+
+      @media (--large) {
+        grid-template-columns: 10em 1fr;
+
+        & input[type="submit"] {
+          grid-column: 1 / span 2;
+        }
+      }
+
+      & label:after {
+        content: ":";
+      }
+
+      & input[type="submit"] {
+        background-color: var(--green);
+        color: white;
+        line-height: 36px;
+        padding: 0.5em 2em;
+        font-size: 0.8em;
+      }
+
+      & textarea {
+        min-height: 10em;
+      }
+    }
+  }
+}

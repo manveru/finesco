@@ -1,0 +1,16 @@
+@import "main";
+
+#blog {
+  & > h1 {
+    margin: 0;
+    text-align: center;
+    padding: 3em;
+    background: var(--grey);
+    color: var(--green);
+    font-weight: 400;
+  }
+
+  & h3 {
+    color: var(--green);
+  }
+}

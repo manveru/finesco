@@ -1,0 +1,87 @@
+@import "main";
+
+#english {
+  @apply --section;
+
+  & > section {
+    @apply --company-info;
+
+    & > figure {
+      margin: 2em 0;
+
+      & figcaption {
+        text-align: center;
+      }
+    }
+
+    &.with-background {
+      background: linear-gradient(to right, rgba(41, 206, 206, 1), rgba(67, 150, 226, 1));
+      color: white;
+      text-align: center;
+    }
+
+    &.with-icon {
+      text-align: center;
+      display: grid;
+      justify-items: center;
+      align-content: center;
+
+      & img {
+        margin: 2em;
+      }
+
+      & h3 {
+        font-size: 1.2em;
+        margin: 0;
+        padding: 0;
+      }
+    }
+
+    &.form {
+      & .inner {
+        @media (--large) {
+          grid-column: 3 / span 2;
+        }
+      }
+
+      & .required-info {
+        font-size: 0.8em;
+        text-align: right;
+      }
+
+      & .required:before {
+        content: "*";
+        color: #f00;
+      }
+
+      & form > div {
+        display: grid;
+        padding: 1em 0;
+
+        @media (--large) {
+          grid-template-columns: 10em 1fr;
+
+          & input[type="submit"] {
+            grid-column: 1 / span 2;
+          }
+        }
+
+        & label:after {
+          content: ":";
+        }
+
+        & input[type="submit"] {
+          background-color: var(--green);
+          color: white;
+          line-height: 36px;
+          padding: 0.5em 2em;
+          font-size: 0.8em;
+        }
+
+        & textarea {
+          min-height: 10em;
+        }
+      }
+    }
+  }
+}

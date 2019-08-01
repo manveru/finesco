@@ -1,0 +1,5 @@
+@import "main";
+
+#disclaimer {
+  @apply --markdown-page;
+}

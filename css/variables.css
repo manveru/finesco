@@ -1,0 +1,89 @@
+:root {
+  --grey: #f5f5f5;
+  --dark-grey: #e5e5e5;
+  --green: #0c9;
+  --dark-green: #6c9b31;
+}
+
+@custom-media --large (width > 50rem);
+
+:root {
+  --section: {
+    & > section {
+      padding: 1em;
+
+      @media (--large) {
+        padding: 2em 0;
+      }
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+
+      & .inner {
+        grid-column: 1 / span 6;
+
+        @media (--large) {
+          grid-column: 2 / span 4;
+        }
+      }
+    }
+  }
+
+  --company-info: {
+    & > dl {
+      & > dt {
+        font-size: 1.2em;
+        margin-top: 1em;
+      }
+
+      & > dd {
+        &.grid-2 {
+          @media (--large) {
+            display: grid;
+            grid-template-columns: 0.5fr 1.5fr;
+            grid-column-gap: 1em;
+          }
+
+          & :nth-child(odd):after {
+            content: ":";
+          }
+
+          & :nth-child(2n):after {
+            content: "\A";
+            white-space: pre;
+          }
+
+          & :nth-child(odd) {
+            @media (--large) {
+              text-align: right;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  --markdown-page: {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+
+    & > article {
+      padding: 0 1em;
+
+      @media (--large) {
+        grid-column: 3 / span 8;
+        padding: 0;
+      }
+
+      & p {
+        word-break: break-all;
+      }
+
+      & p:before {
+        content: "";
+        width: 10em;
+        display: block;
+        overflow: hidden;
+      }
+    }
+  }
+}

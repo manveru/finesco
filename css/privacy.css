@@ -1,0 +1,5 @@
+@import "main";
+
+#privacy {
+  @apply --markdown-page;
+}

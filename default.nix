@@ -182,7 +182,6 @@ let
 
       meta = {
         id = "blog";
-        favicons = ''<meta property="favicons" content="favicons">'';
         links = navLinks "/blog.html";
       } // post;
     }) posts;
@@ -327,6 +326,28 @@ let
       };
     });
 
+commonMarkdownAttrs = id: lib.recursiveUpdate {
+      name = "${id}.html";
+      route = "/${id}.html";
+      body = "${id}.md";
+      templates = {
+        "${id}.md" = ./templates + "/${id}.md";
+        "markdown.tmpl" = ./templates/markdown.tmpl;
+      };
+
+      css = {
+        route = "/css/${id}.css";
+        main = "${id}.css";
+        dependencies = cssDepsFor ./css "${id}.css";
+      };
+
+      meta = {
+        id = "${id}";
+        title = "コラム";
+        links = navLinks "/${id}.html";
+      };
+};
+
   pages = {
     index = mkHtmlPage (commonPageAttrs "index" {
       meta = {
@@ -357,7 +378,6 @@ let
       meta = {
         id = "service";
         title = "サービス一覧";
-        favicons = ''<meta property="favicons" content="favicons">'';
         links = navLinks "/service.html";
       };
     };
@@ -365,7 +385,7 @@ let
     soudan = mkHtmlPage (commonPageAttrs "soudan" { meta.title = "ご相談の流れ"; });
     info = mkHtmlPage (commonBlogAttrs "info" { meta.title = "お知らせ"; });
 
-    column = mkMarkdownPage {
+    column = mkMarkdownPage (commonMarkdownAttrs "column" {
       name = "column.html";
       route = "/column.html";
       body = "column.md";
@@ -383,10 +403,9 @@ let
       meta = {
         id = "column";
         title = "コラム";
-        favicons = ''<meta property="favicons" content="favicons">'';
         links = navLinks "/column.html";
       };
-    };
+    });
 
     blog = mkHtmlPage (commonBlogAttrs "blog" { meta.title = "お知らせ"; });
     contact = mkHtmlPage (commonPageAttrs "contact" { meta.title = "お問い合わせ"; });

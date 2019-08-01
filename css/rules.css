@@ -1,0 +1,5 @@
+@import "main";
+
+#rules {
+  @apply --markdown-page;
+}
