@@ -70,7 +70,7 @@
     </footer>
 
     <script src="/js/scroll.js"></script>
-    <!-- <script src="/js/live.js"></script> -->
+    {{ if (eq .environment "development") }}<script src="/js/live.js"></script>{{ end }}
     <script>
      if (window.netlifyIdentity) {
        window.netlifyIdentity.on("init", user => {

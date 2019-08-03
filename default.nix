@@ -1,142 +1,144 @@
+{ environment ? "production" }:
 with import ./nix/functions.nix {
-  links = [
-    {
-      url = "/";
-      text = "Home";
-    }
-    {
-      url = "/about.html";
-      text = "会社概要";
-    }
-    {
-      url = "/service.html";
-      text = "サービス一覧";
-    }
-    {
-      url = "/soudan.html";
-      text = "ご相談の流れ";
-    }
-    {
-      url = "/info.html";
-      text = "お知らせ";
-    }
-    {
-      url = "/column.html";
-      text = "コラム";
-    }
-    {
-      url = "/blog.html";
-      text = "ブログ";
-    }
-    {
-      url = "/contact.html";
-      text = "お問い合わせ";
-    }
-    {
-      url = "/english.html";
-      text = "ENGLISH";
-    }
-    {
-      url = "https://ja-jp.facebook.com/Finesco-Inc-427977463911779/";
-      text = "Facebook";
-    }
-  ];
+  inherit environment;
+
+  rootDir = ./.;
+
+  layout = "default.tmpl";
+
+  pageOptions =
+    { lib, sortByRecent, mkHtmlPage, mkMarkdownPage, mkPosts, loadPosts }:
+    let
+      blogPosts = sortByRecent (loadPosts "/blog/" ./blog);
+      infoPosts = sortByRecent (loadPosts "/info/" ./info);
+    in [
+      {
+        url = "/";
+        title = "Home";
+        id = "home";
+        compiler = mkHtmlPage;
+        meta.posts = lib.take 2 blogPosts;
+      }
+
+      {
+        url = "/about.html";
+        title = "会社概要";
+        id = "about";
+        compiler = mkHtmlPage;
+      }
+
+      {
+        url = "/service.html";
+        title = "サービス一覧";
+        id = "service";
+        compiler = mkMarkdownPage;
+      }
+
+      {
+        url = "/soudan.html";
+        title = "ご相談の流れ";
+        id = "soudan";
+        compiler = mkHtmlPage;
+      }
+
+      {
+        url = "/info.html";
+        title = "お知らせ";
+        id = "info";
+        compiler = mkHtmlPage;
+        meta.posts = infoPosts;
+        meta.css = "blog";
+        meta.id = "blog";
+      }
+
+      {
+        url = "/column.html";
+        title = "コラム";
+        id = "column";
+        compiler = mkMarkdownPage;
+      }
+
+      {
+        url = "/blog.html";
+        title = "ブログ";
+        id = "blog";
+        compiler = mkHtmlPage;
+        meta.posts = blogPosts;
+      }
+
+      {
+        url = "/contact.html";
+        title = "お問い合わせ";
+        id = "contact";
+        compiler = mkHtmlPage;
+      }
+
+      {
+        url = "/english.html";
+        title = "ENGLISH";
+        id = "english";
+        compiler = mkHtmlPage;
+      }
+
+      {
+        url = "https://ja-jp.facebook.com/Finesco-Inc-427977463911779/";
+        title = "Facebook";
+      }
+
+      {
+        url = "/rules.html";
+        title = "コラム";
+        id = "rules";
+        compiler = mkMarkdownPage;
+        hidden = true;
+      }
+
+      {
+        url = "/privacy.html";
+        title = "コラム";
+        id = "privacy";
+        compiler = mkMarkdownPage;
+        hidden = true;
+      }
+
+      {
+        url = "/disclaimer.html";
+        title = "コラム";
+        id = "disclaimer";
+        compiler = mkMarkdownPage;
+        hidden = true;
+      }
+    ];
 };
 let
-  pages = {
-    index = mkHtmlPage (commonPageAttrs "index" {
-      meta = {
-        id = "home";
-        title = "Home";
-        links = navLinks "/";
-        posts = take 2 (sortByRecent (loadPosts "/blog/" ./blog));
-      };
-    });
-
-    about = mkHtmlPage (commonPageAttrs "about" { meta.title = "会社概要"; });
-
-    service = mkMarkdownPage {
-      name = "service.html";
-      route = "/service.html";
-      body = "service.md";
-      templates = {
-        "service.md" = ./templates/service.md;
-        "markdown.tmpl" = ./templates/markdown.tmpl;
-      };
-
-      css = {
-        route = "/css/service.css";
-        main = "service.css";
-        dependencies = cssDepsFor ./css "service.css";
-      };
-
-      meta = {
-        id = "service";
-        title = "サービス一覧";
-        links = navLinks "/service.html";
-      };
-    };
-
-    soudan = mkHtmlPage (commonPageAttrs "soudan" { meta.title = "ご相談の流れ"; });
-    info = mkHtmlPage (commonBlogAttrs "info" { meta.title = "お知らせ"; });
-
-    column = mkMarkdownPage (commonMarkdownAttrs "column" {
-      name = "column.html";
-      route = "/column.html";
-      body = "column.md";
-      templates = {
-        "column.md" = ./templates/column.md;
-        "markdown.tmpl" = ./templates/markdown.tmpl;
-      };
-
-      css = {
-        route = "/css/column.css";
-        main = "column.css";
-        dependencies = cssDepsFor ./css "column.css";
-      };
-
-      meta = {
-        id = "column";
-        title = "コラム";
-        links = navLinks "/column.html";
-      };
-    });
-
-    blog = mkHtmlPage (commonBlogAttrs "blog" { meta.title = "お知らせ"; });
-    contact = mkHtmlPage (commonPageAttrs "contact" { meta.title = "お問い合わせ"; });
-    english =
-      mkHtmlPage (commonPageAttrs "english" { meta.title = "English"; });
-
-    blogPosts = mkPosts {
-      name = "blogPosts";
-      route = "/blog/";
-      posts = loadPosts "/blog/" ./blog;
-    };
-
-    infoPosts = mkPosts {
-      name = "infoPosts";
-      route = "/info/";
-      posts = loadPosts "/info/" ./info;
-    };
-
-    js = copyFiles ./js "/js";
-    images = copyFiles ./images "/images";
+  blogPostPages = mkPosts {
+    name = "blogPosts";
+    route = "/blog/";
+    posts = loadPosts "/blog/" ./blog;
   };
 
-in mkSite {
-  parts = with pages;
-    [
-      index
-      about
-      service
-      soudan
-      info
-      column
-      blog
-      contact
-      english
-      js
-      images
-      favicons
-    ] ++ blogPosts ++ infoPosts;
-}
+  infoPostPages = mkPosts {
+    name = "infoPosts";
+    route = "/info/";
+    posts = loadPosts "/info/" ./info;
+  };
+
+in mkSite ({ copyFiles, compiled }:
+with compiled;
+[
+  home
+  about
+  service
+  soudan
+  info
+  column
+  blog
+  contact
+  english
+  rules
+  privacy
+  disclaimer
+  favicons
+  (copyFiles ./js "/js")
+  (copyFiles ./images "/images")
+] ++ blogPostPages ++ infoPostPages)

@@ -2,7 +2,7 @@
   "name": "finesco",
   "version": "1.0.0",
   "main": "index.js",
-  "bin": "scripts/front_matter.js",
+  "bin": "nix/scripts/front_matter.js",
   "repository": "git@gitlab.com:manveru/finesco.git",
   "author": "Michael Fellinger <manveru@manveru.dev>",
   "license": "MIT",

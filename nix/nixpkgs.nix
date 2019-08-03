@@ -21,6 +21,11 @@ let
     sha256 = "17ln936r21g44rskaiddz0rqqy87aji20x1qav23ga49vc4rl1ii";
   };
 
+  srcWithout = rootPath: ignoredPaths:
+    let ignoreStrings = map (path: toString path) ignoredPaths;
+    in builtins.filterSource
+    (path: type: (builtins.all (i: i != path) ignoreStrings)) rootPath;
+
 in import nixpkgsSource {
   config = { allowUnfree = true; };
   overlays = [
@@ -46,16 +51,33 @@ in import nixpkgsSource {
       # rubyEnvPlain = (import ~/github/nixos/nixpkgs { }).ruby_2_5.withPackages
       #   (p: [ p.redcarpet ]);
 
-      srcWithout = rootPath: ignoredPaths:
-        let ignoreStrings = map (path: toString path) ignoredPaths;
-        in builtins.filterSource
-        (path: type: (builtins.all (i: i != path) ignoreStrings)) rootPath;
-
+      inherit srcWithout;
       inherit (yarn2nix) yarn2nix mkYarnModules mkYarnPackage;
 
       finescoScripts = yarn2nix.mkYarnPackage {
         name = "finesco-scripts";
-        src = super.lib.cleanSource ../.;
+        src = srcWithout ../. [
+          ../admin
+          ../blog
+          ../ci.nix
+          ../css
+          ../default.nix
+          ../Dockerfile
+          ../.envrc
+          ../.git
+          ../.gitignore
+          ../.gitlab-ci.yml
+          ../images
+          ../info
+          ../js
+          ../netlify.toml
+          ../nix
+          ../node_modules
+          ../result
+          ../.sass-cache
+          ../shell.nix
+          ../templates
+        ];
         packageJSON = ../package.json;
         yarnLock = ../yarn.lock;
         yarnNix = ../yarn.nix;

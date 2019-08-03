@@ -1,15 +1,137 @@
-{ links ? [], pkgs ? import ./nixpkgs.nix }:
+{ rootDir, layout, pageOptions ? [ ], environment ? "production", pkgs ? import ./nixpkgs.nix }@globalArgs:
 let
   inherit (pkgs) stdenv lib writeText runCommand infuse;
   inherit (builtins)
     attrNames placeholder replaceStrings baseNameOf readDir attrValues fromJSON
-    readFile mapAttrs toJSON toFile listToAttrs;
-  inherit (lib) take sort makeBinPath concatMapStrings;
+    readFile mapAttrs toJSON toFile listToAttrs pathExists trace;
+  inherit (lib)
+    take sort makeBinPath concatMapStrings subtractLists attrByPath
+    optionalAttrs;
+
+  pp = value: trace value value;
 in rec {
   inherit take;
 
-  mkSite = { parts }:
-    runCommand "finesco" { inherit parts; } ''
+  defaultLayout = tmplDepsFor (rootDir + "/templates/") globalArgs.layout;
+
+  pages = pageOptions {
+    inherit mkHtmlPage mkMarkdownPage mkPosts loadPosts lib sortByRecent;
+  };
+
+  isHidden = page: attrByPath [ "hidden" ] false page;
+
+  links = subtractLists [ null ]
+    (map (page: if isHidden page then null else { inherit (page) url title; })
+    pages);
+
+  sortByRecent = sort (a: b: a.date > b.date);
+
+  loadPosts = baseUrl: location:
+    (attrValues (mapAttrs (k: v:
+    let markdown = parseMarkdown "${location + "/${k}"}";
+    in (markdown // { url = "${baseUrl}${markdown.date}.html"; }))
+    (readDir location)));
+
+  navLinks = currentRoute:
+    map (link:
+    if currentRoute == link.url then
+      ''<a href="${link.url}" class="active">${link.title}</a>''
+    else
+      ''<a href="${link.url}">${link.title}</a>'') links;
+
+  cssDeps = src:
+    let
+      generated = mkDerivation {
+        name = "cssDeps";
+        PATH = makeBinPath [ pkgs.rubyEnv.wrappedRuby ];
+        inherit src;
+        LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
+        LC_ALL = "en_US.UTF-8";
+
+        buildCommand = ''
+          ruby ${../scripts/css_deps.rb} "$src" > $out
+        '';
+      };
+    in fromJSON (readFile generated);
+
+  cssDepsFor = src: entryPoint:
+    let allDeps = cssDeps src;
+    in listToAttrs (map (v: {
+      name = v;
+      value = "${src + "/${v}"}";
+    }) allDeps."${entryPoint}");
+
+  tmplDeps = src:
+    let
+      generated = mkDerivation {
+        name = "tmplDeps";
+        PATH = makeBinPath [ pkgs.rubyEnv.wrappedRuby ];
+        inherit src;
+        LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
+        LC_ALL = "en_US.UTF-8";
+
+        buildCommand = ''
+          ruby ${../scripts/tmpl_deps.rb} "$src" > $out
+        '';
+      };
+    in fromJSON (readFile generated);
+
+  tmplDepsFor = src: entryPoint:
+    let allDeps = tmplDeps src;
+    in listToAttrs (map (v: {
+      name = v;
+      value = "${src + "/${v}"}";
+    }) allDeps."${entryPoint}");
+
+  compileCSS = {id, ...}@page:
+    let
+      basename = "${attrByPath [ "meta" "css" ] id page}.css";
+      route = "/css/${basename}";
+    in {
+      inherit route;
+      file = mkCSS {
+        inherit route;
+        main = basename;
+        dependencies = cssDepsFor (rootDir + "/css/") basename;
+      };
+    };
+
+  compiledPages = listToAttrs (subtractLists [ null ] (map (page:
+    if page ? compiler then {
+      name = page.id;
+      value = page.compiler ({
+        name = page.id;
+
+        meta = {
+          inherit (page) id title url;
+          inherit environment;
+          links = navLinks page.url;
+          cssTag = ''<link rel="stylesheet" href="${(compileCSS page).route}" />'';
+        } // (optionalAttrs (page ? meta) page.meta);
+
+        route = if page.url == "/" then "/index.html" else page.url;
+
+        cssFile = (compileCSS page).file;
+
+      } // (if pathExists (rootDir + "/templates/${page.id}.tmpl") then {
+        templates = tmplDepsFor (rootDir + "/templates/") "${page.id}.tmpl";
+        body = "${page.id}.tmpl";
+      } else {
+        templates = (tmplDepsFor (rootDir + "/templates/") "markdown.tmpl") // {
+          "${page.id}.md" = (rootDir + "/templates/${page.id}.md");
+        };
+        body = "${page.id}.md";
+      }));
+    } else
+      null) pages));
+
+  mkSite = chooseParts:
+    runCommand "finesco" {
+      parts = chooseParts ({
+        compiled = compiledPages;
+        inherit copyFiles;
+      });
+    } ''
       mkdir -p $out
 
       for part in $parts; do
@@ -36,24 +158,6 @@ in rec {
       args = [ "-e" builder ];
     });
 
-  layouts = {
-    default = {
-      template = "default.tmpl";
-      templates = {
-        "links.tmpl" = ../templates/links.tmpl;
-        "default.tmpl" = ../templates/default.tmpl;
-      };
-    };
-  };
-
-  sortByRecent = sort (a: b: a.date > b.date);
-
-  loadPosts = baseUrl: location:
-    (attrValues (mapAttrs (k: v:
-    let markdown = parseMarkdown "${location + "/${k}"}";
-    in (markdown // { url = "${baseUrl}${markdown.date}.html"; }))
-    (readDir location)));
-
   parseMarkdown = src:
     let
       raw = mkDerivation {
@@ -71,23 +175,16 @@ in rec {
       };
     in fromJSON (readFile raw);
 
-  navLinks = currentRoute:
-    map (link:
-    if currentRoute == link.url then
-      ''<a href="${link.url}" class="active">${link.text}</a>''
-    else
-      ''<a href="${link.url}">${link.text}</a>'') links;
-
-  cssTag = route: ''<link rel="stylesheet" href="${route}" />'';
-
   favicons = mkDerivation (let
     convertPNG = size:
       "convert -background none ${
         ../images/favicon.svg
       } -resize ${size}x${size}! +repage $out/images/favicons/favicon${size}.png";
+
     convertICO = "convert -background none ${
       ../images/favicon.svg
     } -define icon:auto-resize=32,64 +repage ico:- > $out/images/favicons/favicon.ico";
+
     in {
       name = "favicons";
       PATH = makeBinPath [ pkgs.coreutils pkgs.imagemagick ];
@@ -102,85 +199,82 @@ in rec {
       '';
     });
 
-  # TODO:
-  # maybe add this sometime (have to clean up HTML first)
-  # tidy -ashtml -i --drop-empty-elements false
-  mkHtmlPage =
-    { name, route, body, layout ? layouts.default, templates, meta ? { }, css ?
-      null, ... }@args:
+  mkTemplate = { name, route, body, layout ? defaultLayout, templates
+    , meta ? { }, cssFile ? null, buildPhase ? "", ... }@args:
     let
-      combinedTemplates = layout.templates // templates;
-      finalMeta = meta
-        // (if css != null then { cssTag = cssTag css.route; } else { });
-    in mkDerivation (args // {
+      combinedTemplates = layout // templates;
+      definitions =
+        concatMapStrings (f: ''-d "${f}" '') (attrNames combinedTemplates);
+      metaJSON = toFile "meta.json" (toJSON meta);
+    in mkDerivation ({
+      name = "mkTemplate-${name}";
       __structuredAttrs = true;
-
-      inherit name combinedTemplates;
-
+      inherit combinedTemplates;
       PATH = makeBinPath [ pkgs.coreutils pkgs.infuse pkgs.gnused ];
+      layoutTemplate = globalArgs.layout;
 
-      buildCommand = let
-        definitions =
-          concatMapStrings (f: ''-d "${f}" '') (attrNames combinedTemplates);
-        metaJSON = toFile "meta.json" (toJSON finalMeta);
-        in ''
-          for i in "''${!combinedTemplates[@]}"; do
-            cp "''${combinedTemplates[$i]}" $i
-          done
+      buildCommand = ''
+        for i in "''${!combinedTemplates[@]}"; do
+          cp "''${combinedTemplates[$i]}" $i
+        done
 
-          mkdir -p $out
-          ${if css != null then "cp -r ${mkCSS css}/* $out" else ""}
-          sed -i 's!@@body@@!{{template "${body}" .}}!' "${layout.template}"
-          infuse -f ${metaJSON} ${definitions} "${layout.template}" -o "$out${route}"
-        '';
+        mkdir -p $out
+        ${if cssFile != null then "cp -r ${cssFile}/* $out" else ""}
+
+        ${buildPhase { inherit metaJSON definitions; }}
+      '';
     });
 
-  mkPost = { name, route, bodyTmpl, layout ? layouts.default, templates, meta ?
-    { }, css ? null, ... }@args:
-    let
-      combinedTemplates = layout.templates // templates;
-      finalMeta = meta
-        // (if css != null then { cssTag = cssTag css.route; } else { });
-    in mkDerivation (args // {
-      __structuredAttrs = true;
+  mkHtmlPage = { body, route, ... }@args:
+    mkTemplate (args // {
+      buildPhase = { metaJSON, definitions }: ''
+        sed -i 's!@@body@@!{{template "${body}" .}}!' "$layoutTemplate"
+        infuse -f ${metaJSON} ${definitions} "$layoutTemplate" -o "$out${route}"
+      '';
+    });
 
-      inherit name combinedTemplates;
-
-      PATH = makeBinPath [ pkgs.coreutils pkgs.infuse pkgs.gnused ];
-
-      buildCommand = let
+  mkPost = { name, route, bodyTmpl, layout ? defaultLayout, templates
+    , meta ? { }, cssFile ? null, ... }@args:
+    let combinedTemplates = layout // templates;
         definitions =
           concatMapStrings (f: ''-d "${f}" '') (attrNames combinedTemplates);
-        metaJSON = toFile "meta.json" (toJSON finalMeta);
-        in ''
+        metaJSON = toFile "meta.json" (toJSON meta);
+    in mkDerivation (args // {
+      __structuredAttrs = true;
+      inherit name combinedTemplates;
+      layoutTemplate = globalArgs.layout;
+      PATH = makeBinPath [ pkgs.coreutils pkgs.infuse pkgs.gnused ];
+
+      buildCommand = ''
           for i in "''${!combinedTemplates[@]}"; do
             cp "''${combinedTemplates[$i]}" $i
           done
 
           mkdir -p $out/$(dirname ${route})
-          ${if css != null then "cp -r ${mkCSS css}/* $out" else ""}
-          sed -i 's!@@body@@!{{template "${bodyTmpl}" .}}!' "${layout.template}"
-          infuse -f ${metaJSON} ${definitions} "${layout.template}" -o "$out${route}"
+          ${if cssFile != null then "cp -r ${cssFile}/* $out" else ""}
+          sed -i 's!@@body@@!{{template "${bodyTmpl}" .}}!' "$layoutTemplate"
+          infuse -f ${metaJSON} ${definitions} "$layoutTemplate" -o "$out${route}"
         '';
     });
 
   mkPosts = { name, route, posts }:
     map (post:
+    let
+    css = compileCSS {id = "blog"; };
+      in
     mkPost {
       name = "${name}-mkPost";
       route = "${route}/${post.date}.html";
       bodyTmpl = "post.tmpl";
       templates = { "post.tmpl" = ../templates/post.tmpl; };
 
-      css = {
-        route = "/css/blog.css";
-        main = "blog.css";
-        dependencies = cssDepsFor ../css "blog.css";
-      };
+      cssFile = css.file;
 
       meta = {
+        inherit environment;
         id = "blog";
         links = navLinks "/blog.html";
+        cssTag = ''<link rel="stylesheet" href="${css.route}" />'';
       } // post;
     }) posts;
 
@@ -214,41 +308,38 @@ in rec {
       '';
     };
 
-  mkMarkdownPage =
-    { name, route, body, layout ? layouts.default, templates, meta ? { }, css ?
-      null, ... }@args:
+  mkMarkdownPage = { name, route, body, layout ? defaultLayout, templates
+    , meta ? { }, cssFile ? null, ... }@args:
     let
-      combinedTemplates = layout.templates // templates;
-      markdown = parseMarkdown combinedTemplates."${body}";
-      finalMeta = meta
-        // (if css != null then { cssTag = cssTag css.route; } else { })
-        // (markdown);
-    in mkDerivation (args // {
+      combinedTemplates = layout // templates;
+      markdownMeta = parseMarkdown combinedTemplates."${body}";
+      finalMeta = meta // markdownMeta;
+      definitions =
+        concatMapStrings (f: ''-d "${f}" '') (attrNames combinedTemplates);
+      metaJSON = toFile "meta.json" (toJSON finalMeta);
+    in mkDerivation ({
       __structuredAttrs = true;
 
       inherit name combinedTemplates;
 
       PATH = makeBinPath [ pkgs.coreutils pkgs.infuse pkgs.gnused ];
 
-      markdownBody = markdown.body;
+      markdownBody = markdownMeta.body;
+      layoutTemplate = globalArgs.layout;
 
-      buildCommand = let
-        definitions =
-          concatMapStrings (f: ''-d "${f}" '') (attrNames combinedTemplates);
-        metaJSON = toFile "meta.json" (toJSON finalMeta);
-        in ''
-          for i in "''${!combinedTemplates[@]}"; do
-            cp "''${combinedTemplates[$i]}" $i
-          done
+      buildCommand = ''
+        for i in "''${!combinedTemplates[@]}"; do
+          cp "''${combinedTemplates[$i]}" $i
+        done
 
-          mkdir -p $out
-          ${if css != null then "cp -r ${mkCSS css}/* $out" else ""}
+        mkdir -p $out
+        ${if cssFile != null then "cp -r ${cssFile}/* $out" else ""}
 
-          echo "$markdownBody" > markdownBody.tmpl
-          sed -i 's!@@body@@!{{template "markdown.tmpl" .}}!' "${layout.template}"
-          sed -i 's!@@body@@!{{template "markdownBody.tmpl" .}}!' "markdown.tmpl"
-          infuse -f ${metaJSON} -d markdownBody.tmpl ${definitions} "${layout.template}" -o "$out${route}"
-        '';
+        echo "$markdownBody" > markdownBody.tmpl
+        sed -i 's!@@body@@!{{template "markdown.tmpl" .}}!' "$layoutTemplate"
+        sed -i 's!@@body@@!{{template "markdownBody.tmpl" .}}!' "markdown.tmpl"
+        infuse -f ${metaJSON} -d markdownBody.tmpl ${definitions} "$layoutTemplate" -o "$out${route}"
+      '';
     });
 
   copyFiles = from: to:
@@ -261,86 +352,5 @@ in rec {
         mkdir -p $out$to
         cp -r "$from"/* $out$to
       '';
-    };
-
-  cssDeps = src:
-    let
-      generated = mkDerivation {
-        name = "cssDeps";
-        PATH = makeBinPath [ pkgs.rubyEnv.wrappedRuby ];
-        inherit src;
-        LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
-        LC_ALL = "en_US.UTF-8";
-
-        buildCommand = ''
-          ruby ${../scripts/css_deps.rb} "$src" > $out
-        '';
-      };
-    in fromJSON (readFile generated);
-
-  cssDepsFor = src: entryPoint:
-    let allDeps = cssDeps src;
-    in listToAttrs (map (v: {
-      name = v;
-      value = "${src + "/${v}"}";
-    }) allDeps."${entryPoint}");
-
-  commonAttrs = id:
-    lib.recursiveUpdate {
-      name = "${id}.html";
-      route = "/${id}.html";
-      body = "${id}.tmpl";
-      templates = { "${id}.tmpl" = ../templates + "/${id}.tmpl"; };
-      meta = { links = navLinks "/${id}.html"; };
-    };
-
-  commonPageAttrs = id:
-    lib.recursiveUpdate (commonAttrs id {
-      css = {
-        route = "/css/${id}.css";
-        main = "${id}.css";
-        dependencies = cssDepsFor ../css "${id}.css";
-      };
-
-      meta = { id = "${id}"; };
-    });
-
-  commonBlogAttrs = id:
-    lib.recursiveUpdate (commonAttrs id {
-      templates = { "post-list.tmpl" = ../templates/post-list.tmpl; };
-
-      css = {
-        route = "/css/blog.css";
-        main = "blog.css";
-        dependencies = cssDepsFor ../css "blog.css";
-      };
-
-      meta = {
-        id = "blog";
-        posts = sortByRecent (loadPosts "/${id}/" (../. + "/${id}"));
-      };
-    });
-
-  commonMarkdownAttrs = id:
-    lib.recursiveUpdate {
-      name = "${id}.html";
-      route = "/${id}.html";
-      body = "${id}.md";
-      templates = {
-        "${id}.md" = ../templates + "/${id}.md";
-        "markdown.tmpl" = ../templates/markdown.tmpl;
-      };
-
-      css = {
-        route = "/css/${id}.css";
-        main = "${id}.css";
-        dependencies = cssDepsFor ../css "${id}.css";
-      };
-
-      meta = {
-        id = "${id}";
-        title = "コラム";
-        links = navLinks "/${id}.html";
-      };
     };
 }

@@ -67,11 +67,11 @@
     grid-template-columns: repeat(12, 1fr);
 
     & > article {
-      padding: 0 1em;
+      padding: 0 2em;
 
       @media (--large) {
         grid-column: 3 / span 8;
-        padding: 0;
+        padding: 2em 0;
       }
 
       & p {

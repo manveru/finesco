@@ -2,7 +2,6 @@ with import ./nix/nixpkgs.nix;
 pkgs.mkShell {
   buildInputs = [
     cacert
-    sass
     image_optim
     yarn
     yarn2nix
