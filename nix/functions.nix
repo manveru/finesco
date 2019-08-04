@@ -1,4 +1,5 @@
-{ rootDir, layout, pageOptions ? [ ], environment ? "production", pkgs ? import ./nixpkgs.nix }@globalArgs:
+{ rootDir, layout, pageOptions ? [ ], environment ? "production"
+, pkgs ? import ./nixpkgs.nix }@globalArgs:
 let
   inherit (pkgs) stdenv lib writeText runCommand infuse;
   inherit (builtins)
@@ -15,7 +16,7 @@ in rec {
   defaultLayout = tmplDepsFor (rootDir + "/templates/") globalArgs.layout;
 
   pages = pageOptions {
-    inherit mkHtmlPage mkMarkdownPage mkPosts loadPosts lib sortByRecent;
+    inherit mkHtmlPage mkMarkdownPage loadPosts lib sortByRecent;
   };
 
   isHidden = page: attrByPath [ "hidden" ] false page;
@@ -83,7 +84,7 @@ in rec {
       value = "${src + "/${v}"}";
     }) allDeps."${entryPoint}");
 
-  compileCSS = {id, ...}@page:
+  compileCSS = { id, ... }@page:
     let
       basename = "${attrByPath [ "meta" "css" ] id page}.css";
       route = "/css/${basename}";
@@ -106,7 +107,8 @@ in rec {
           inherit (page) id title url;
           inherit environment;
           links = navLinks page.url;
-          cssTag = ''<link rel="stylesheet" href="${(compileCSS page).route}" />'';
+          cssTag =
+            ''<link rel="stylesheet" href="${(compileCSS page).route}" />'';
         } // (optionalAttrs (page ? meta) page.meta);
 
         route = if page.url == "/" then "/index.html" else page.url;
@@ -176,18 +178,16 @@ in rec {
     in fromJSON (readFile raw);
 
   favicons = mkDerivation (let
+    source = rootDir + "/images/favicon.svg";
     convertPNG = size:
-      "convert -background none ${
-        ../images/favicon.svg
-      } -resize ${size}x${size}! +repage $out/images/favicons/favicon${size}.png";
+      "convert -background none ${source} -resize ${size}x${size}! +repage $out/images/favicons/favicon${size}.png";
 
-    convertICO = "convert -background none ${
-      ../images/favicon.svg
-    } -define icon:auto-resize=32,64 +repage ico:- > $out/images/favicons/favicon.ico";
+    convertICO =
+      "convert -background none ${source} -define icon:auto-resize=32,64 +repage ico:- > $out/images/favicons/favicon.ico";
 
     in {
       name = "favicons";
-      PATH = makeBinPath [ pkgs.coreutils pkgs.imagemagick ];
+      PATH = makeBinPath (with pkgs; [ coreutils imagemagick ]);
 
       buildCommand = ''
         mkdir -p $out/images/favicons
@@ -199,8 +199,28 @@ in rec {
       '';
     });
 
+  mkAtom = { route, meta ? { } }:
+    let
+      metaJSON = toFile "meta.json" (toJSON meta);
+      templates = tmplDepsFor (rootDir + "/templates/") "atom.tmpl";
+      definitions = concatMapStrings (f: ''-d "${f}" '') (attrNames templates);
+    in mkDerivation {
+      name = "mkAtom";
+      __structuredAttrs = true;
+      inherit route templates;
+      PATH = makeBinPath (with pkgs; [ coreutils infuse gnused ]);
+      buildCommand = ''
+        for i in "''${!templates[@]}"; do
+          cp "''${templates[$i]}" $i
+        done
+
+        infuse -f ${metaJSON} ${definitions} "atom.tmpl" -o result
+        install -m 0644 -D result "$out$route"
+      '';
+    };
+
   mkTemplate = { name, route, body, layout ? defaultLayout, templates
-    , meta ? { }, cssFile ? null, buildPhase ? "", ... }@args:
+    , meta ? { }, cssFile ? null, ... }@args:
     let
       combinedTemplates = layout // templates;
       definitions =
@@ -210,7 +230,7 @@ in rec {
       name = "mkTemplate-${name}";
       __structuredAttrs = true;
       inherit combinedTemplates;
-      PATH = makeBinPath [ pkgs.coreutils pkgs.infuse pkgs.gnused ];
+      PATH = makeBinPath (with pkgs; [ coreutils infuse gnused ]);
       layoutTemplate = globalArgs.layout;
 
       buildCommand = ''
@@ -219,53 +239,23 @@ in rec {
         done
 
         mkdir -p $out
+
         ${if cssFile != null then "cp -r ${cssFile}/* $out" else ""}
-
-        ${buildPhase { inherit metaJSON definitions; }}
-      '';
-    });
-
-  mkHtmlPage = { body, route, ... }@args:
-    mkTemplate (args // {
-      buildPhase = { metaJSON, definitions }: ''
         sed -i 's!@@body@@!{{template "${body}" .}}!' "$layoutTemplate"
-        infuse -f ${metaJSON} ${definitions} "$layoutTemplate" -o "$out${route}"
+        infuse -f ${metaJSON} ${definitions} "$layoutTemplate" -o result
+        install -m 0644 -D result "$out${route}"
       '';
     });
 
-  mkPost = { name, route, bodyTmpl, layout ? defaultLayout, templates
-    , meta ? { }, cssFile ? null, ... }@args:
-    let combinedTemplates = layout // templates;
-        definitions =
-          concatMapStrings (f: ''-d "${f}" '') (attrNames combinedTemplates);
-        metaJSON = toFile "meta.json" (toJSON meta);
-    in mkDerivation (args // {
-      __structuredAttrs = true;
-      inherit name combinedTemplates;
-      layoutTemplate = globalArgs.layout;
-      PATH = makeBinPath [ pkgs.coreutils pkgs.infuse pkgs.gnused ];
-
-      buildCommand = ''
-          for i in "''${!combinedTemplates[@]}"; do
-            cp "''${combinedTemplates[$i]}" $i
-          done
-
-          mkdir -p $out/$(dirname ${route})
-          ${if cssFile != null then "cp -r ${cssFile}/* $out" else ""}
-          sed -i 's!@@body@@!{{template "${bodyTmpl}" .}}!' "$layoutTemplate"
-          infuse -f ${metaJSON} ${definitions} "$layoutTemplate" -o "$out${route}"
-        '';
-    });
+  mkHtmlPage = mkTemplate;
 
   mkPosts = { name, route, posts }:
     map (post:
-    let
-    css = compileCSS {id = "blog"; };
-      in
-    mkPost {
+    let css = compileCSS { id = "blog"; };
+    in mkTemplate {
       name = "${name}-mkPost";
       route = "${route}/${post.date}.html";
-      bodyTmpl = "post.tmpl";
+      body = "post.tmpl";
       templates = { "post.tmpl" = ../templates/post.tmpl; };
 
       cssFile = css.file;
@@ -275,6 +265,9 @@ in rec {
         id = "blog";
         links = navLinks "/blog.html";
         cssTag = ''<link rel="stylesheet" href="${css.route}" />'';
+        atomTag = ''
+          <link href="/blog.atom" type="application/atom+xml" rel="alternate" title="Blog Atom feed" />
+        '';
       } // post;
     }) posts;
 
@@ -313,16 +306,15 @@ in rec {
     let
       combinedTemplates = layout // templates;
       markdownMeta = parseMarkdown combinedTemplates."${body}";
-      finalMeta = meta // markdownMeta;
       definitions =
         concatMapStrings (f: ''-d "${f}" '') (attrNames combinedTemplates);
-      metaJSON = toFile "meta.json" (toJSON finalMeta);
+      metaJSON = toFile "meta.json" (toJSON (meta // markdownMeta));
     in mkDerivation ({
       __structuredAttrs = true;
 
       inherit name combinedTemplates;
 
-      PATH = makeBinPath [ pkgs.coreutils pkgs.infuse pkgs.gnused ];
+      PATH = makeBinPath (with pkgs; [ coreutils infuse gnused ]);
 
       markdownBody = markdownMeta.body;
       layoutTemplate = globalArgs.layout;
@@ -338,7 +330,8 @@ in rec {
         echo "$markdownBody" > markdownBody.tmpl
         sed -i 's!@@body@@!{{template "markdown.tmpl" .}}!' "$layoutTemplate"
         sed -i 's!@@body@@!{{template "markdownBody.tmpl" .}}!' "markdown.tmpl"
-        infuse -f ${metaJSON} -d markdownBody.tmpl ${definitions} "$layoutTemplate" -o "$out${route}"
+        infuse -f ${metaJSON} -d markdownBody.tmpl ${definitions} "$layoutTemplate" -o result
+        install -m 0644 -D result "$out${route}"
       '';
     });
 

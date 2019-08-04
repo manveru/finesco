@@ -16,6 +16,8 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/favicons/favicon72.png">
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/images/favicons/favicon57.png">
     {{ .cssTag }}
+    {{ .atomTag | default "" }}
+    {{ .currentFile | default "" }}
     <link href="https://fonts.googleapis.com/css?family=M+PLUS+1p" rel="stylesheet">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>

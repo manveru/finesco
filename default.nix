@@ -6,8 +6,7 @@ with import ./nix/functions.nix {
 
   layout = "default.tmpl";
 
-  pageOptions =
-    { lib, sortByRecent, mkHtmlPage, mkMarkdownPage, mkPosts, loadPosts }:
+  pageOptions = { lib, sortByRecent, mkHtmlPage, mkMarkdownPage, loadPosts }:
     let
       blogPosts = sortByRecent (loadPosts "/blog/" ./blog);
       infoPosts = sortByRecent (loadPosts "/info/" ./info);
@@ -49,6 +48,9 @@ with import ./nix/functions.nix {
         meta.posts = infoPosts;
         meta.css = "blog";
         meta.id = "blog";
+        meta.atomTag = ''
+          <link href="/info.atom" type="application/atom+xml" rel="alternate" title="Info Atom feed" />
+        '';
       }
 
       {
@@ -64,6 +66,9 @@ with import ./nix/functions.nix {
         id = "blog";
         compiler = mkHtmlPage;
         meta.posts = blogPosts;
+        meta.atomTag = ''
+          <link href="/blog.atom" type="application/atom+xml" rel="alternate" title="Blog Atom feed" />
+        '';
       }
 
       {
@@ -111,16 +116,51 @@ with import ./nix/functions.nix {
     ];
 };
 let
+
+  infoPosts = sortByRecent (loadPosts "/info/" ./info);
+  blogPosts = sortByRecent (loadPosts "/blog/" ./blog);
+
   blogPostPages = mkPosts {
     name = "blogPosts";
     route = "/blog/";
-    posts = loadPosts "/blog/" ./blog;
+    posts = blogPosts;
   };
 
   infoPostPages = mkPosts {
     name = "infoPosts";
     route = "/info/";
-    posts = loadPosts "/info/" ./info;
+    posts = infoPosts;
+  };
+
+  postsToAtom = posts:
+    map (post: {
+      id = "tag:manveru.dev,2019:blog,${post.date}";
+      author = "Finesco";
+    } // post) posts;
+
+  lastPostDate = posts:
+    if (builtins.length posts) > 0 then (builtins.head posts).date else null;
+
+  atomMeta = id: posts: {
+      posts = postsToAtom posts;
+      id = "tag:finesco.jp,2019:blog";
+      blogURL = "https://finesco.jp/${info}";
+      feedURL = "https://finesco.jp/${info}.atom";
+      author = "Finesco";
+      generator.version = "2019.08";
+      generator.url = "http://github.com/manveru/finesco";
+      generator.name = "Finesco";
+      updated = lastPostDate posts;
+    };
+
+  infoFeed = mkAtom {
+    route = "/info.atom";
+    meta = atomMeta "info" infoPosts;
+  };
+
+  blogFeed = mkAtom {
+    route = "/blog.atom";
+    meta = atomMeta "blog" blogPosts;
   };
 
 in mkSite ({ copyFiles, compiled }:
@@ -139,6 +179,8 @@ with compiled;
   privacy
   disclaimer
   favicons
+  infoFeed
+  blogFeed
   (copyFiles ./js "/js")
   (copyFiles ./images "/images")
 ] ++ blogPostPages ++ infoPostPages)
