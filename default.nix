@@ -155,7 +155,6 @@ let
   blogFeed = mkAtom {
     route = "/blog.atom";
     meta = atomMeta "blog" blogPosts;
-    posts = infoPosts;
   };
 
   infoFeed = mkAtom {
