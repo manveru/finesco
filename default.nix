@@ -116,9 +116,29 @@ with import ./nix/functions.nix {
     ];
 };
 let
+  lastPostDate = posts:
+    if (builtins.length posts) > 0 then (builtins.head posts).date else null;
+
+  postsToAtom = posts:
+    map (post: {
+      id = "tag:finesco.jp,2019:blog,${post.date}";
+      author = "Finesco";
+    } // post) posts;
 
   infoPosts = sortByRecent (loadPosts "/info/" ./info);
   blogPosts = sortByRecent (loadPosts "/blog/" ./blog);
+
+  atomMeta = id: posts: {
+      posts = postsToAtom posts;
+      id = "tag:finesco.jp,2019:blog";
+      blogURL = "https://finesco.jp/${id}";
+      feedURL = "https://finesco.jp/${id}.atom";
+      author = "Finesco";
+      generator.version = "2019.08";
+      generator.url = "http://github.com/manveru/finesco";
+      generator.name = "Finesco";
+      updated = lastPostDate posts;
+    };
 
   blogPostPages = mkPosts {
     name = "blogPosts";
@@ -132,35 +152,15 @@ let
     posts = infoPosts;
   };
 
-  postsToAtom = posts:
-    map (post: {
-      id = "tag:manveru.dev,2019:blog,${post.date}";
-      author = "Finesco";
-    } // post) posts;
-
-  lastPostDate = posts:
-    if (builtins.length posts) > 0 then (builtins.head posts).date else null;
-
-  atomMeta = id: posts: {
-      posts = postsToAtom posts;
-      id = "tag:finesco.jp,2019:blog";
-      blogURL = "https://finesco.jp/${info}";
-      feedURL = "https://finesco.jp/${info}.atom";
-      author = "Finesco";
-      generator.version = "2019.08";
-      generator.url = "http://github.com/manveru/finesco";
-      generator.name = "Finesco";
-      updated = lastPostDate posts;
-    };
+  blogFeed = mkAtom {
+    route = "/blog.atom";
+    meta = atomMeta "blog" blogPosts;
+    posts = infoPosts;
+  };
 
   infoFeed = mkAtom {
     route = "/info.atom";
     meta = atomMeta "info" infoPosts;
-  };
-
-  blogFeed = mkAtom {
-    route = "/blog.atom";
-    meta = atomMeta "blog" blogPosts;
   };
 
 in mkSite ({ copyFiles, compiled }:
